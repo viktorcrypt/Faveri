@@ -1,0 +1,32 @@
+{
+  "name": "@ink-contract-launcher/contracts",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "compile": "hardhat compile && tsx scripts/exportArtifacts.ts",
+    "test": "hardhat test",
+    "chain": "hardhat node",
+    "deploy:localhost": "hardhat run scripts/deploy.ts --network localhost",
+    "deploy:ink": "hardhat run scripts/deploy.ts --network inkMainnet",
+    "deploy:ink-mainnet": "hardhat run scripts/deploy.ts --network inkMainnet",
+    "deploy:ink-sepolia": "hardhat run scripts/deploy.ts --network inkSepolia",
+    "deploy:arc": "hardhat run scripts/deploy.ts --network arcTestnet",
+    "deploy:arc-testnet": "hardhat run scripts/deploy.ts --network arcTestnet",
+    "lint": "tsc -p tsconfig.json --noEmit",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "5.0.2"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-network-helpers": "^1.1.0",
+    "@nomicfoundation/hardhat-toolbox": "^6.0.0",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^22.15.0",
+    "dotenv": "^16.5.0",
+    "hardhat": "^2.26.0",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3"
+  }
+}
