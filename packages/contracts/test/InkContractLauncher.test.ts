@@ -139,7 +139,7 @@ async function deployUSDCMiniEscrow(
   return ethers.getContractAt("USDCMiniEscrow", address, signer) as Promise<any>;
 }
 
-describe("Ink Contract Launcher", function () {
+describe("Faveri", function () {
   it("registry deploys each template successfully and records usage", async function () {
     const [deployer, worker] = await ethers.getSigners();
     const registry = await deployRegistry();

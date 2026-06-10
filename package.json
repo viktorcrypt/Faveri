@@ -1,21 +1,21 @@
 {
-  "name": "ink-contract-launcher",
+  "name": "faveri",
   "version": "0.1.0",
   "private": true,
   "packageManager": "pnpm@10.13.1",
   "scripts": {
-    "compile": "pnpm --filter @ink-contract-launcher/contracts compile",
-    "test": "pnpm --filter @ink-contract-launcher/contracts test",
-    "chain": "pnpm --filter @ink-contract-launcher/contracts chain",
-    "deploy:localhost": "pnpm --filter @ink-contract-launcher/contracts deploy:localhost",
-    "deploy:ink": "pnpm --filter @ink-contract-launcher/contracts deploy:ink",
-    "deploy:ink-mainnet": "pnpm --filter @ink-contract-launcher/contracts deploy:ink-mainnet",
-    "deploy:ink-sepolia": "pnpm --filter @ink-contract-launcher/contracts deploy:ink-sepolia",
-    "deploy:arc": "pnpm --filter @ink-contract-launcher/contracts deploy:arc-testnet",
-    "deploy:arc-testnet": "pnpm --filter @ink-contract-launcher/contracts deploy:arc-testnet",
-    "dev": "pnpm --filter @ink-contract-launcher/web dev",
+    "compile": "pnpm --filter @faveri/contracts compile",
+    "test": "pnpm --filter @faveri/contracts test",
+    "chain": "pnpm --filter @faveri/contracts chain",
+    "deploy:localhost": "pnpm --filter @faveri/contracts deploy:localhost",
+    "deploy:ink": "pnpm --filter @faveri/contracts deploy:ink",
+    "deploy:ink-mainnet": "pnpm --filter @faveri/contracts deploy:ink-mainnet",
+    "deploy:ink-sepolia": "pnpm --filter @faveri/contracts deploy:ink-sepolia",
+    "deploy:arc": "pnpm --filter @faveri/contracts deploy:arc-testnet",
+    "deploy:arc-testnet": "pnpm --filter @faveri/contracts deploy:arc-testnet",
+    "dev": "pnpm --filter @faveri/web dev",
     "lint": "pnpm -r lint",
     "typecheck": "pnpm -r typecheck",
-    "build": "pnpm --filter @ink-contract-launcher/web build"
+    "build": "pnpm --filter @faveri/web build"
   }
 }

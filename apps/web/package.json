@@ -1,5 +1,5 @@
 {
-  "name": "@ink-contract-launcher/web",
+  "name": "@faveri/web",
   "version": "0.1.0",
   "private": true,
   "scripts": {

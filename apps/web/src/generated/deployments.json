@@ -21,5 +21,17 @@
       "BuilderBadgeDeployer": "0x5db59264a75225F49f11558a2Cea1aBe1cbEdDe8",
       "SimpleERC20Deployer": "0xD9538D8B70901A8Ffeb9068fa023278BCe90DE2c"
     }
+  },
+  "5042002": {
+    "network": "arcTestnet",
+    "InkLauncherRegistry": "0xDb5C8D18c67C5d4E00563E82150E1FD9E9ae8b9D",
+    "libraries": {
+      "TipJarDeployer": "0x5161316FCc351328F08Ed35852EDd16b42A07358",
+      "GuestbookDeployer": "0x3BCCe2980FAFB52A80D7F4337bf1d8d55041881a",
+      "BuilderBadgeDeployer": "0x8923A76106fb77700c65cE56440020eE4d388AFe",
+      "SimpleERC20Deployer": "0x5388CB3A795184430Eb285487b6788Cc70118830",
+      "USDCTipJarDeployer": "0xDb892868dC560b97c8fbcAE3fc1E034736418e4b",
+      "USDCMiniEscrowDeployer": "0x5E79F7a88eF129d1f154d4BD6cf11C09dc5DA90e"
+    }
   }
 }

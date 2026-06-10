@@ -329,7 +329,7 @@ export function LauncherHome() {
         <div className="reveal-in relative z-[1] max-w-4xl space-y-8 [--index:0]">
           <div className="space-y-6">
             <p className="liquid-glass inline-flex rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-white/80">
-              {mode === "arc" ? "Arc / USDC settlement mode" : "Ink contract launcher"}
+              {mode === "arc" ? "Arc / USDC settlement mode" : "Faveri launch mode"}
             </p>
             <h1 className="max-w-[11ch] text-5xl font-semibold leading-[0.94] tracking-[-0.055em] text-white md:text-7xl">
               {mode === "arc" ? "Stablecoin contracts, ready for settlement." : "User-owned contracts, launched cleanly."}

@@ -6,7 +6,7 @@ import { Providers } from "@/app/providers";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Ink Contract Launcher",
+  title: "Faveri",
   description: "Deploy user-owned contracts on Ink and USDC-native settlement contracts on Arc."
 };
 
@@ -23,7 +23,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     <Bolt className="h-5 w-5 text-[#fbfaf4]" aria-hidden="true" />
                   </span>
                   <span>
-                    <span className="block text-sm font-semibold text-[#171714]">Ink Contract Launcher</span>
+                    <span className="block text-sm font-semibold text-[#171714]">Faveri</span>
                     <span className="block text-xs text-[#686b63]">Ink + Arc contract deployments</span>
                   </span>
                 </Link>

@@ -13,8 +13,8 @@ const connectors = [
         walletConnect({
           projectId: walletConnectProjectId,
           metadata: {
-            name: "Ink Contract Launcher",
-            description: "Deploy user-owned smart contracts on Ink and Arc.",
+            name: "Faveri",
+            description: "Deploy user-owned contracts and stablecoin settlement flows.",
             url: "https://localhost",
             icons: []
           }
