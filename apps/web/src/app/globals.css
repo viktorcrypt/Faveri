@@ -448,6 +448,21 @@ select {
   backdrop-filter: blur(26px);
 }
 
+.brand-lockup {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0.34rem;
+  padding: 0.56rem 0.4rem 0.5rem;
+}
+
+.brand-lockup-line {
+  background: linear-gradient(90deg, rgba(23, 23, 20, 0.82), transparent);
+  display: block;
+  height: 1px;
+  opacity: 0.44;
+  width: 4.2rem;
+}
+
 .rail-page,
 .route-page {
   background:
