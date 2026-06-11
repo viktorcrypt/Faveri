@@ -4,6 +4,11 @@ const config: Config = {
   content: ["./src/**/*.{ts,tsx}"],
   theme: {
     extend: {
+      fontFamily: {
+        display: ['"Space Grotesk"', "Geist", "Satoshi", "Avenir Next", "system-ui", "sans-serif"],
+        sans: ["Geist", "Satoshi", "Avenir Next", "system-ui", "sans-serif"],
+        mono: ['"JetBrains Mono"', '"SFMono-Regular"', "Consolas", "monospace"]
+      },
       colors: {
         ink: {
           50: "#fbfaf4",

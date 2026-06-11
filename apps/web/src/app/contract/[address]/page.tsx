@@ -22,5 +22,9 @@ export default function ContractPage({
     ? (searchParams.template as TemplateSlug)
     : "tipjar";
 
-  return <ContractDetailClient contractAddress={params.address} template={template} />;
+  return (
+    <main className="mx-auto max-w-7xl px-4 pb-12 pt-28 sm:px-6 lg:px-8">
+      <ContractDetailClient contractAddress={params.address} template={template} />
+    </main>
+  );
 }

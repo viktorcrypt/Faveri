@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { parseAbiItem, type Address } from "viem";
+import type { Address } from "viem";
 import { useChainId, usePublicClient } from "wagmi";
 import { inkLauncherRegistryAbi } from "@/generated/contracts";
+import type { SupportedChainId } from "@/lib/chains";
 import { getRegistryAddress } from "@/lib/registry";
 import { templates } from "@/lib/templates";
 
@@ -25,10 +26,6 @@ type MetricsState = {
   registryAddress?: Address;
 };
 
-const launchEvent = parseAbiItem(
-  "event ContractLaunched(address indexed deployer,address indexed deployedContract,uint8 indexed templateId,string templateName,string metadata,uint256 timestamp)"
-);
-
 function normalizeDeployment(raw: any): LaunchRecord {
   return {
     deployer: raw.deployer ?? raw[0],
@@ -40,9 +37,10 @@ function normalizeDeployment(raw: any): LaunchRecord {
   };
 }
 
-export function useRegistryMetrics(limit = 8) {
-  const chainId = useChainId();
-  const publicClient = usePublicClient();
+export function useRegistryMetrics(limit = 8, chainIdOverride?: SupportedChainId) {
+  const connectedChainId = useChainId();
+  const chainId = (chainIdOverride ?? connectedChainId) as SupportedChainId;
+  const publicClient = usePublicClient({ chainId });
   const registryAddress = getRegistryAddress(chainId);
   const [state, setState] = useState<MetricsState>({
     total: 0n,
@@ -90,42 +88,19 @@ export function useRegistryMetrics(limit = 8) {
 
         const usage = Object.fromEntries(usagePairs) as Record<number, bigint>;
 
-        let recent: LaunchRecord[] = [];
-
-        try {
-          const logs = await publicClient.getLogs({
-            address: registryAddress,
-            event: launchEvent,
-            fromBlock: 0n,
-            toBlock: "latest"
-          });
-
-          recent = logs
-            .slice(-limit)
-            .map((log) => ({
-              deployer: log.args.deployer as Address,
-              deployedContract: log.args.deployedContract as Address,
-              templateId: Number(log.args.templateId),
-              templateName: log.args.templateName ?? "",
-              metadata: log.args.metadata ?? "",
-              timestamp: BigInt(log.args.timestamp ?? 0)
-            }))
-            .reverse();
-        } catch {
-          const totalNumber = Number(total);
-          const start = Math.max(totalNumber - limit, 0);
-          const records = await Promise.all(
-            Array.from({ length: totalNumber - start }, (_, index) =>
-              publicClient.readContract({
-                address: registryAddress,
-                abi: inkLauncherRegistryAbi,
-                functionName: "getDeployment",
-                args: [BigInt(start + index)]
-              })
-            )
-          );
-          recent = records.map(normalizeDeployment).reverse();
-        }
+        const totalNumber = Number(total);
+        const start = Math.max(totalNumber - limit, 0);
+        const records = await Promise.all(
+          Array.from({ length: totalNumber - start }, (_, index) =>
+            publicClient.readContract({
+              address: registryAddress,
+              abi: inkLauncherRegistryAbi,
+              functionName: "getDeployment",
+              args: [BigInt(start + index)]
+            })
+          )
+        );
+        const recent = records.map(normalizeDeployment).reverse();
 
         if (!cancelled) {
           setState({ total, usage, recent, isLoading: false, registryAddress });

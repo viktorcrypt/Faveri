@@ -13,22 +13,34 @@ export function ConnectWallet() {
   const { switchChain, isPending: isSwitching } = useSwitchChain();
 
   const chain = supportedChains.find((item) => item.id === chainId);
+  const preferredConnector =
+    connectors.find((connector) => connector.name === "Injected") ??
+    connectors.find((connector) => connector.name.toLowerCase().includes("metamask")) ??
+    connectors[0];
 
   if (!isConnected) {
     return (
       <div className="flex flex-wrap gap-2">
-        {connectors.map((connector) => (
+        {preferredConnector ? (
           <button
-            key={connector.uid}
-            className="button-primary rounded-full px-4 py-2 transition-transform hover:scale-105 active:scale-95"
+            className="chrome-pill inline-flex items-center justify-center gap-2 rounded-full px-3 py-2 text-sm font-semibold text-[#171714] transition-transform hover:scale-[1.03] active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50"
             disabled={isPending}
-            onClick={() => connect({ connector })}
+            onClick={() => connect({ connector: preferredConnector })}
             type="button"
           >
             <Cable className="h-4 w-4" aria-hidden="true" />
-            {connector.name === "Injected" ? "Connect Wallet" : connector.name}
+            Connect
           </button>
-        ))}
+        ) : (
+          <button
+            className="chrome-pill inline-flex cursor-not-allowed items-center justify-center gap-2 rounded-full px-3 py-2 text-sm font-semibold text-[#171714]/50"
+            disabled
+            type="button"
+          >
+            <Cable className="h-4 w-4" aria-hidden="true" />
+            No wallet
+          </button>
+        )}
       </div>
     );
   }
@@ -39,7 +51,7 @@ export function ConnectWallet() {
         <CheckCircle2 className="h-4 w-4 text-[#4e8f65]" aria-hidden="true" />
         {shortAddress(address)}
       </span>
-      <span className="liquid-glass inline-flex items-center gap-2 rounded-full px-3 py-2 text-xs text-[#55584f]">
+      <span className="liquid-glass hidden items-center gap-2 rounded-full px-3 py-2 text-xs text-[#55584f] sm:inline-flex">
         <Network className="h-4 w-4 text-[#4e8f65]" aria-hidden="true" />
         {chain?.name ?? `Chain ${chainId}`}
       </span>

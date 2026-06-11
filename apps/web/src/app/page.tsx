@@ -1,5 +1,5 @@
-import { LauncherHome } from "@/components/LauncherHome";
+import { RailLanding } from "@/components/RailLanding";
 
 export default function HomePage() {
-  return <LauncherHome />;
+  return <RailLanding />;
 }

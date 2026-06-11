@@ -60,7 +60,8 @@ export const arcTestnet = defineChain({
 export const primaryInkChain = inkMainnet;
 export const primaryArcChain = arcTestnet;
 
-export const supportedChains = [hardhat, inkMainnet, inkSepolia, arcTestnet] as const;
+export const supportedChains = [inkMainnet, arcTestnet, inkSepolia, hardhat] as const;
+export type SupportedChainId = (typeof supportedChains)[number]["id"];
 
 export function explorerLink(chainId: number, value: string, type: "address" | "tx" = "address") {
   const chain = supportedChains.find((item) => item.id === chainId);

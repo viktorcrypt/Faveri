@@ -115,7 +115,7 @@ export function DashboardClient() {
                 className={`template-card ${visual.artClass} reveal-in rounded-[18px] border border-[#171714]/10 p-3`}
                 style={{ "--index": index } as CSSProperties}
               >
-                <div className={`art-panel ${visual.artClass} relative h-28 overflow-hidden rounded-[14px] border border-[#171714]/10`}>
+                <div className={`art-panel ${visual.artClass} relative aspect-[16/10] overflow-hidden rounded-[14px] border border-[#171714]/10`}>
                   <TemplateArt slug={template.slug} />
                   <span className="absolute left-3 top-3 rounded-md border border-[#171714]/10 bg-[#081011]/50 px-2 py-1 font-mono text-[10px] uppercase tracking-[0.12em] text-[#dce6d6] backdrop-blur">
                     {visual.proof}

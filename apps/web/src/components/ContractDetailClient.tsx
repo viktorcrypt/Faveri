@@ -142,9 +142,9 @@ export function ContractDetailClient({ contractAddress, template }: { contractAd
   return (
     <div className="space-y-8">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <Link className="button-secondary" href="/">
+        <Link className="button-secondary" href={selectedTemplate.mode === "arc" ? "/arc" : "/ink"}>
           <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-          Back to launcher
+          Back to {selectedTemplate.mode === "arc" ? "Arc" : "Ink"} rail
         </Link>
         <button className="button-secondary" disabled={isLoading} onClick={() => setRefreshKey((current) => current + 1)} type="button">
           <RefreshCw className="h-4 w-4" aria-hidden="true" />
@@ -154,7 +154,7 @@ export function ContractDetailClient({ contractAddress, template }: { contractAd
 
       <section className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
         <div className="panel reveal-in overflow-hidden p-4 [--index:0] md:p-5">
-          <div className={`art-panel ${visual.artClass} relative min-h-[260px] overflow-hidden rounded-[20px] border border-[#171714]/10`}>
+          <div className={`art-panel ${visual.artClass} relative aspect-[16/9] min-h-[260px] overflow-hidden rounded-[20px] border border-[#171714]/10`}>
             <TemplateArt slug={template} large />
             <div className="absolute left-4 top-4 rounded-md border border-[#171714]/10 bg-[#081011]/50 px-3 py-1 font-mono text-xs uppercase tracking-[0.14em] text-[#dce6d6] backdrop-blur">
               {visual.proof}
