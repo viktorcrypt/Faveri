@@ -1,20 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { Activity, BarChart3, Database, ExternalLink, RadioTower, TriangleAlert } from "lucide-react";
+import { Activity, BarChart3, RadioTower, ShieldCheck, TriangleAlert } from "lucide-react";
 import type { CSSProperties } from "react";
 import { useChainId } from "wagmi";
+import { NetworkActivity } from "@/components/NetworkActivity";
 import { TemplateArt, templateVisuals } from "@/components/TemplateArt";
-import { explorerLink } from "@/lib/chains";
-import { formatDate, shortAddress } from "@/lib/format";
 import { getRegistryAddress, registrySetupMessage } from "@/lib/registry";
-import { templateSlugFromId, templates } from "@/lib/templates";
+import { templates } from "@/lib/templates";
 import { useRegistryMetrics } from "@/lib/useRegistryMetrics";
 
 export function DashboardClient() {
   const chainId = useChainId();
   const registryAddress = getRegistryAddress(chainId);
-  const metrics = useRegistryMetrics(25);
+  const metrics = useRegistryMetrics(80);
 
   return (
     <div className="space-y-8">
@@ -28,7 +27,7 @@ export function DashboardClient() {
               Registry signals without backend noise.
             </h1>
             <p className="max-w-[58ch] text-base leading-7 text-[#55584f]">
-              Deployments, template mix, deployer addresses, and timestamps are read from the public launcher registry.
+              Launch counts, template mix, active deployer totals, and child-contract actions are read from public onchain records.
             </p>
           </div>
           <div className="mt-10 grid gap-3 sm:grid-cols-3">
@@ -45,12 +44,12 @@ export function DashboardClient() {
             <div>
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className="font-mono text-xs uppercase tracking-[0.14em] text-[#777a72]">Registry address</p>
-                  <p className="mt-3 break-all font-mono text-sm leading-6 text-[#171714]">
-                    {registryAddress ?? "Not configured"}
+                  <p className="font-mono text-xs uppercase tracking-[0.14em] text-[#777a72]">Public analytics layer</p>
+                  <p className="mt-3 max-w-[16ch] text-4xl font-semibold leading-[0.94] tracking-[-0.05em] text-[#171714]">
+                    Aggregates without address tables.
                   </p>
                 </div>
-                <Database className="h-5 w-5 shrink-0 text-[#4e8f65]" aria-hidden="true" />
+                <ShieldCheck className="h-5 w-5 shrink-0 text-[#4e8f65]" aria-hidden="true" />
               </div>
               {!registryAddress && (
                 <div className="mt-4 rounded-md border border-[#a8752f]/20 bg-[#fff2ce]/70 p-3 text-sm leading-6 text-[#6d4b13]">
@@ -80,12 +79,6 @@ export function DashboardClient() {
             </div>
 
             <div className="mt-8 flex flex-wrap gap-2">
-              {registryAddress && explorerLink(chainId, registryAddress) && (
-                <a className="button-secondary" href={explorerLink(chainId, registryAddress)} rel="noreferrer" target="_blank">
-                  Open registry
-                  <ExternalLink className="h-4 w-4" aria-hidden="true" />
-                </a>
-              )}
               <Link className="button-primary" href="/">
                 Launch contract
               </Link>
@@ -93,6 +86,8 @@ export function DashboardClient() {
           </div>
         </aside>
       </section>
+
+      <NetworkActivity metrics={metrics} chainId={chainId} />
 
       <section className="panel p-5 md:p-6">
         <div className="flex flex-col justify-between gap-4 border-b border-[#171714]/10 pb-5 md:flex-row md:items-end">
@@ -135,68 +130,6 @@ export function DashboardClient() {
         </div>
       </section>
 
-      <section className="panel overflow-hidden p-5 md:p-6">
-        <div className="flex flex-col justify-between gap-4 border-b border-[#171714]/10 pb-4 md:flex-row md:items-end">
-          <div>
-            <p className="text-sm font-semibold text-[#31593f]">Recent launches</p>
-            <h2 className="mt-1 text-3xl font-semibold tracking-[-0.035em] text-[#171714]">Registry table</h2>
-          </div>
-          <Link className="button-secondary" href="/">
-            Launch another contract
-          </Link>
-        </div>
-
-        {metrics.error && (
-          <div className="mt-4 rounded-md border border-red-500/20 bg-red-500/10 p-3 text-sm text-red-800">
-            {metrics.error}
-          </div>
-        )}
-
-        <div className="mt-4 overflow-x-auto">
-          {metrics.isLoading ? (
-            <div className="space-y-2">
-              <div className="skeleton h-12 rounded-md" />
-              <div className="skeleton h-12 rounded-md" />
-              <div className="skeleton h-12 rounded-md" />
-            </div>
-          ) : metrics.recent.length === 0 ? (
-            <div className="rounded-[18px] border border-dashed border-[#171714]/[0.15] p-10 text-center">
-              <p className="font-semibold text-[#171714]">No launches recorded yet</p>
-              <p className="mt-2 text-sm text-[#686b63]">Deploy a template and the registry will populate this table.</p>
-            </div>
-          ) : (
-            <table className="w-full min-w-[860px] text-left text-sm">
-              <thead className="text-xs uppercase tracking-[0.12em] text-[#777a72]">
-                <tr>
-                  <th className="py-3 pr-4">Template</th>
-                  <th className="py-3 pr-4">Deployer</th>
-                  <th className="py-3 pr-4">Contract</th>
-                  <th className="py-3 pr-4">Metadata</th>
-                  <th className="py-3 pr-4">Timestamp</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#171714]/10">
-                {metrics.recent.map((launch) => (
-                  <tr key={`${launch.deployedContract}-${launch.timestamp.toString()}`} className="text-[#55584f]">
-                    <td className="py-3 pr-4 text-[#171714]">{launch.templateName}</td>
-                    <td className="py-3 pr-4 font-mono">{shortAddress(launch.deployer)}</td>
-                    <td className="py-3 pr-4 font-mono">
-                      <Link
-                        className="text-[#31593f] underline"
-                        href={`/contract/${launch.deployedContract}?template=${templateSlugFromId(launch.templateId)}`}
-                      >
-                        {shortAddress(launch.deployedContract)}
-                      </Link>
-                    </td>
-                    <td className="max-w-[240px] truncate py-3 pr-4">{launch.metadata || "None"}</td>
-                    <td className="py-3 pr-4">{formatDate(launch.timestamp)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </div>
-      </section>
     </div>
   );
 }

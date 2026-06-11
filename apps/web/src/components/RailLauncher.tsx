@@ -10,7 +10,6 @@ import {
   Clock,
   ExternalLink,
   Info,
-  Route,
   ShieldCheck,
   TriangleAlert,
   WalletCards
@@ -19,6 +18,7 @@ import type { CSSProperties, ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { decodeEventLog, isAddress, parseEther, parseUnits, zeroAddress, type Address, type Hash } from "viem";
 import { useAccount, useChainId, usePublicClient, useSwitchChain } from "wagmi";
+import { NetworkActivity } from "@/components/NetworkActivity";
 import { TemplateArt, templateVisuals } from "@/components/TemplateArt";
 import { inkLauncherRegistryAbi } from "@/generated/contracts";
 import { arcTestnet, explorerLink, primaryInkChain } from "@/lib/chains";
@@ -31,9 +31,9 @@ import {
   resolveUSDCAddress,
   USDC_DECIMALS
 } from "@/lib/circle";
-import { formatDate, formatToken, shortAddress } from "@/lib/format";
+import { formatToken, shortAddress } from "@/lib/format";
 import { getRegistryAddress, registrySetupMessage } from "@/lib/registry";
-import { isUSDCTemplate, templateSlugFromId, templates, templatesForMode, type LauncherMode, type TemplateSlug } from "@/lib/templates";
+import { isUSDCTemplate, templates, templatesForMode, type LauncherMode, type TemplateSlug } from "@/lib/templates";
 import { useContractTx } from "@/lib/useContractTx";
 import { useRegistryMetrics } from "@/lib/useRegistryMetrics";
 
@@ -95,7 +95,7 @@ export function RailLauncher({ mode }: { mode: LauncherMode }) {
   const registryAddress = getRegistryAddress(chainId);
   const usdcAddress = resolveUSDCAddress(chainId);
   const targetChainId = mode === "arc" ? arcTestnet.id : primaryInkChain.id;
-  const metrics = useRegistryMetrics(8, targetChainId);
+  const metrics = useRegistryMetrics(32, targetChainId);
   const { runTx, hash, error, isPending, setError } = useContractTx();
   const modeTemplates = useMemo(() => templatesForMode(mode), [mode]);
   const [selected, setSelected] = useState<TemplateSlug>(mode === "arc" ? "usdc-tipjar" : "tipjar");
@@ -567,7 +567,7 @@ export function RailLauncher({ mode }: { mode: LauncherMode }) {
 
         {mode === "arc" && <GatewayConsole />}
 
-        <RouteActivity metrics={metrics} mode={mode} chainId={chainId} />
+        <NetworkActivity metrics={metrics} mode={mode} chainId={targetChainId} compact />
       </div>
     </main>
   );
@@ -587,75 +587,6 @@ function InlineWarning({ children }: { children: ReactNode }) {
     <div className="flex flex-col gap-3 rounded-[18px] bg-[#fff2ce]/78 p-4 text-sm leading-6 text-[#6d4b13] sm:flex-row sm:items-center sm:justify-between">
       {children}
     </div>
-  );
-}
-
-function RouteActivity({
-  metrics,
-  mode,
-  chainId
-}: {
-  metrics: ReturnType<typeof useRegistryMetrics>;
-  mode: LauncherMode;
-  chainId: number;
-}) {
-  const modeTemplateIds = new Set(templatesForMode(mode).map((template) => template.id));
-  const launches = metrics.recent.filter((launch) => modeTemplateIds.has(launch.templateId)).slice(0, 5);
-
-  return (
-    <section className="grid gap-6 border-t border-[#171714]/10 pt-10 lg:grid-cols-[0.72fr_1.28fr]">
-      <div>
-        <p className="font-mono text-xs uppercase tracking-[0.18em] text-[#777c73]">Route signals</p>
-        <h2 className="mt-3 max-w-[10ch] text-5xl font-semibold leading-[0.94] tracking-[-0.055em] text-[#171714]">
-          Public launch activity.
-        </h2>
-        <p className="mt-5 max-w-[42ch] text-sm leading-6 text-[#5d625a]">
-          Registry events stay public: deployer, contract address, template, metadata, and timestamp.
-        </p>
-      </div>
-
-      <div className="rounded-[28px] bg-white/62 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.86)] backdrop-blur">
-        {metrics.error && <p className="p-3 text-sm text-[#6d4b13]">{metrics.error}</p>}
-        {metrics.isLoading ? (
-          <div className="space-y-2 p-2">
-            <div className="skeleton h-16 rounded-[18px]" />
-            <div className="skeleton h-16 rounded-[18px]" />
-            <div className="skeleton h-16 rounded-[18px]" />
-          </div>
-        ) : launches.length === 0 ? (
-          <div className="rounded-[22px] border border-dashed border-[#171714]/[0.16] p-8 text-center">
-            <Route className="mx-auto h-6 w-6 text-[#777c73]" aria-hidden="true" />
-            <p className="mt-3 font-semibold text-[#171714]">No launches on this route yet</p>
-            <p className="mt-2 text-sm text-[#687064]">Deploy a contract and this signal list will populate from registry events.</p>
-          </div>
-        ) : (
-          <div className="divide-y divide-[#171714]/10">
-            {launches.map((launch) => (
-              <div key={`${launch.deployedContract}-${launch.timestamp.toString()}`} className="grid gap-3 p-4 md:grid-cols-[1fr_auto] md:items-center">
-                <div>
-                  <p className="font-semibold text-[#171714]">{launch.templateName}</p>
-                  <p className="mt-1 font-mono text-xs text-[#687064]">
-                    {shortAddress(launch.deployer)} to{" "}
-                    <Link className="text-[#171714] underline" href={`/contract/${launch.deployedContract}?template=${templateSlugFromId(launch.templateId)}`}>
-                      {shortAddress(launch.deployedContract)}
-                    </Link>
-                  </p>
-                </div>
-                <div className="flex flex-wrap items-center gap-3 text-sm text-[#687064]">
-                  <span>{formatDate(launch.timestamp)}</span>
-                  {explorerLink(chainId, launch.deployedContract) && (
-                    <a className="inline-flex items-center gap-1 font-semibold text-[#171714]" href={explorerLink(chainId, launch.deployedContract)} rel="noreferrer" target="_blank">
-                      Explorer
-                      <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
-                    </a>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </section>
   );
 }
 
