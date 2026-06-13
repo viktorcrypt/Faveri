@@ -196,8 +196,8 @@ export function ContractDetailClient({ contractAddress, template }: { contractAd
           <dl className="mt-4 space-y-3 text-sm">
             <SummaryRow label={template === "mini-escrow" || template === "usdc-mini-escrow" ? "Creator" : "Contract owner"} value={ownerLike ? shortAddress(ownerLike) : "Loading"} />
             <SummaryRow label="Connected wallet" value={address ? shortAddress(address) : "Not connected"} />
-            <SummaryRow label="Launcher admin rights" value="none" />
-            <SummaryRow label="Upgradeability" value="none" />
+            <SummaryRow label="Launcher control" value="No admin access" />
+            <SummaryRow label="Upgradeability" value="Not upgradeable" />
             <SummaryRow label="Registry data" value="public deployment metadata only" />
           </dl>
           <div className="mt-4 rounded-md border border-[#171714]/10 bg-white/[0.65] p-3 text-sm leading-6 text-[#55584f]">
@@ -568,9 +568,10 @@ function USDCTipJarActions({
     <ActionPanel title="USDCTipJar actions">
       <Field label="Tip message" value={message} onChange={setMessage} />
       <Field label="Tip amount in USDC" value={amount} onChange={setAmount} />
+      <p className="text-xs leading-5 text-[#777c73]">USDC tips use two wallet confirmations: approve this contract, then send the tip.</p>
       <button className="button-primary" disabled={disabled || !usdcToken} onClick={sendUSDCTip} type="button">
         <Send className="h-4 w-4" aria-hidden="true" />
-        Approve and send tip
+        Approve USDC, then send tip
       </button>
 
       <Divider />

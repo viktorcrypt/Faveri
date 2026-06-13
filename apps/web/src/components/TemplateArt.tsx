@@ -93,6 +93,9 @@ const templateArtwork: Record<
 
 export function TemplateArt({ slug, large = false }: { slug: TemplateSlug; large?: boolean }) {
   const artwork = templateArtwork[slug];
+  const imageSizes = large
+    ? "(min-width: 1536px) 760px, (min-width: 1280px) 52vw, 100vw"
+    : "(min-width: 1536px) 520px, (min-width: 1024px) 48vw, (min-width: 768px) 50vw, 92vw";
 
   return (
     <span className="absolute inset-0 block overflow-hidden">
@@ -101,9 +104,12 @@ export function TemplateArt({ slug, large = false }: { slug: TemplateSlug; large
         aria-hidden="true"
         className={`object-cover transition duration-700 ease-out ${large ? "scale-[1.015]" : "group-hover:scale-[1.045]"}`}
         fill
-        sizes={large ? "(min-width: 1280px) 46vw, 100vw" : "(min-width: 1280px) 20vw, (min-width: 768px) 42vw, 92vw"}
+        priority={large}
+        quality={100}
+        sizes={imageSizes}
         src={artwork.src}
         style={{ objectPosition: artwork.position }}
+        unoptimized
       />
       <span className="template-art-vignette" aria-hidden="true" />
     </span>

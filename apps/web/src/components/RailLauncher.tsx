@@ -18,7 +18,6 @@ import type { CSSProperties, ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { decodeEventLog, isAddress, parseEther, parseUnits, zeroAddress, type Address, type Hash } from "viem";
 import { useAccount, useChainId, usePublicClient, useSwitchChain } from "wagmi";
-import { NetworkActivity } from "@/components/NetworkActivity";
 import { TemplateArt, templateVisuals } from "@/components/TemplateArt";
 import { inkLauncherRegistryAbi } from "@/generated/contracts";
 import { arcTestnet, explorerLink, primaryInkChain } from "@/lib/chains";
@@ -35,7 +34,6 @@ import { formatToken, shortAddress } from "@/lib/format";
 import { getRegistryAddress, registrySetupMessage } from "@/lib/registry";
 import { isUSDCTemplate, templates, templatesForMode, type LauncherMode, type TemplateSlug } from "@/lib/templates";
 import { useContractTx } from "@/lib/useContractTx";
-import { useRegistryMetrics } from "@/lib/useRegistryMetrics";
 
 type SuccessState = {
   address: Address;
@@ -94,8 +92,6 @@ export function RailLauncher({ mode }: { mode: LauncherMode }) {
   const { switchChainAsync } = useSwitchChain();
   const registryAddress = getRegistryAddress(chainId);
   const usdcAddress = resolveUSDCAddress(chainId);
-  const targetChainId = mode === "arc" ? arcTestnet.id : primaryInkChain.id;
-  const metrics = useRegistryMetrics(32, targetChainId);
   const { runTx, hash, error, isPending, setError } = useContractTx();
   const modeTemplates = useMemo(() => templatesForMode(mode), [mode]);
   const [selected, setSelected] = useState<TemplateSlug>(mode === "arc" ? "usdc-tipjar" : "tipjar");
@@ -218,107 +214,112 @@ export function RailLauncher({ mode }: { mode: LauncherMode }) {
     }
 
     setSuccess(undefined);
+    setError(undefined);
 
-    const now = Math.floor(Date.now() / 1000);
-    let functionName = "";
-    let args: readonly unknown[] = [];
-    let value: bigint | undefined;
+    try {
+      const now = Math.floor(Date.now() / 1000);
+      let functionName = "";
+      let args: readonly unknown[] = [];
+      let value: bigint | undefined;
 
-    if (selected === "tipjar") {
-      const form = forms.tipjar;
-      functionName = "deployTipJar";
-      args = [form.projectName, form.description, parseEther(form.minTip || "0")];
-    }
+      if (selected === "tipjar") {
+        const form = forms.tipjar;
+        functionName = "deployTipJar";
+        args = [form.projectName, form.description, parseEther(form.minTip || "0")];
+      }
 
-    if (selected === "guestbook") {
-      const form = forms.guestbook;
-      functionName = "deployGuestbook";
-      args = [form.wallName, parseEther(form.messageFee || "0"), BigInt(form.maxMessageLength || "0")];
-    }
+      if (selected === "guestbook") {
+        const form = forms.guestbook;
+        functionName = "deployGuestbook";
+        args = [form.wallName, parseEther(form.messageFee || "0"), BigInt(form.maxMessageLength || "0")];
+      }
 
-    if (selected === "builder-badge") {
-      const form = forms["builder-badge"];
-      functionName = "deployBuilderBadge";
-      args = [form.name, form.symbol, form.baseURI, form.transferable];
-    }
+      if (selected === "builder-badge") {
+        const form = forms["builder-badge"];
+        functionName = "deployBuilderBadge";
+        args = [form.name, form.symbol, form.baseURI, form.transferable];
+      }
 
-    if (selected === "simple-erc20") {
-      const form = forms["simple-erc20"];
-      functionName = "deploySimpleERC20";
-      args = [form.name, form.symbol, parseUnits(form.initialSupply || "0", 18), form.mintable];
-    }
+      if (selected === "simple-erc20") {
+        const form = forms["simple-erc20"];
+        functionName = "deploySimpleERC20";
+        args = [form.name, form.symbol, parseUnits(form.initialSupply || "0", 18), form.mintable];
+      }
 
-    if (selected === "mini-escrow") {
-      const form = forms["mini-escrow"];
-      functionName = "deployMiniEscrow";
-      args = [
-        form.title,
-        form.metadataURI,
-        form.worker.trim() ? (form.worker.trim() as Address) : zeroAddress,
-        BigInt(now + Math.floor(Number(form.deadlineHours) * 3600))
-      ];
-      value = parseEther(form.reward || "0");
-    }
+      if (selected === "mini-escrow") {
+        const form = forms["mini-escrow"];
+        functionName = "deployMiniEscrow";
+        args = [
+          form.title,
+          form.metadataURI,
+          form.worker.trim() ? (form.worker.trim() as Address) : zeroAddress,
+          BigInt(now + Math.floor(Number(form.deadlineHours) * 3600))
+        ];
+        value = parseEther(form.reward || "0");
+      }
 
-    if (selected === "usdc-tipjar") {
-      const form = forms["usdc-tipjar"];
-      functionName = "deployUSDCTipJar";
-      args = [usdcAddress, form.projectName, form.description, parseUnits(form.minTip || "0", USDC_DECIMALS)];
-    }
+      if (selected === "usdc-tipjar") {
+        const form = forms["usdc-tipjar"];
+        functionName = "deployUSDCTipJar";
+        args = [usdcAddress, form.projectName, form.description, parseUnits(form.minTip || "0", USDC_DECIMALS)];
+      }
 
-    if (selected === "usdc-mini-escrow") {
-      const form = forms["usdc-mini-escrow"];
-      const reward = parseUnits(form.reward || "0", USDC_DECIMALS);
-      functionName = "deployUSDCMiniEscrow";
-      args = [
-        usdcAddress,
-        form.title,
-        form.metadataURI,
-        form.worker.trim() ? (form.worker.trim() as Address) : zeroAddress,
-        BigInt(now + Math.floor(Number(form.deadlineHours) * 3600)),
-        reward
-      ];
+      if (selected === "usdc-mini-escrow") {
+        const form = forms["usdc-mini-escrow"];
+        const reward = parseUnits(form.reward || "0", USDC_DECIMALS);
+        functionName = "deployUSDCMiniEscrow";
+        args = [
+          usdcAddress,
+          form.title,
+          form.metadataURI,
+          form.worker.trim() ? (form.worker.trim() as Address) : zeroAddress,
+          BigInt(now + Math.floor(Number(form.deadlineHours) * 3600)),
+          reward
+        ];
 
-      await runTx({
-        address: usdcAddress as Address,
-        abi: erc20Abi,
-        functionName: "approve",
-        args: [registryAddress, reward]
+        await runTx({
+          address: usdcAddress as Address,
+          abi: erc20Abi,
+          functionName: "approve",
+          args: [registryAddress, reward]
+        });
+      }
+
+      const result = await runTx({
+        address: registryAddress,
+        abi: inkLauncherRegistryAbi,
+        functionName,
+        args,
+        value
       });
+
+      const launched = result.receipt.logs
+        .map((log) => {
+          try {
+            return decodeEventLog({
+              abi: inkLauncherRegistryAbi,
+              data: log.data,
+              topics: log.topics
+            });
+          } catch {
+            return undefined;
+          }
+        })
+        .find((decoded) => decoded?.eventName === "ContractLaunched");
+
+      const deployedContract = launched?.args
+        ? ((launched.args as unknown as Record<string, unknown>).deployedContract as Address)
+        : undefined;
+
+      if (!deployedContract) {
+        setError("Deployment mined, but ContractLaunched event was not found.");
+        return;
+      }
+
+      setSuccess({ address: deployedContract, hash: result.hash, template: selected });
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Deployment failed.");
     }
-
-    const result = await runTx({
-      address: registryAddress,
-      abi: inkLauncherRegistryAbi,
-      functionName,
-      args,
-      value
-    });
-
-    const launched = result.receipt.logs
-      .map((log) => {
-        try {
-          return decodeEventLog({
-            abi: inkLauncherRegistryAbi,
-            data: log.data,
-            topics: log.topics
-          });
-        } catch {
-          return undefined;
-        }
-      })
-      .find((decoded) => decoded?.eventName === "ContractLaunched");
-
-    const deployedContract = launched?.args
-      ? ((launched.args as unknown as Record<string, unknown>).deployedContract as Address)
-      : undefined;
-
-    if (!deployedContract) {
-      setError("Deployment mined, but ContractLaunched event was not found.");
-      return;
-    }
-
-    setSuccess({ address: deployedContract, hash: result.hash, template: selected });
   }
 
   return (
@@ -361,9 +362,9 @@ export function RailLauncher({ mode }: { mode: LauncherMode }) {
               <div className="route-map-track" aria-hidden="true" />
               <div className="relative flex h-full min-h-[350px] flex-col justify-between">
                 <div className="grid gap-3 sm:grid-cols-3">
-                  <RouteMetric label="Launches" value={metrics.total.toString()} />
-                  <RouteMetric label="Templates" value={String(modeTemplates.length)} />
-                  <RouteMetric label="Admin rights" value="0" />
+                  <RouteStep index="01" title="Choose" copy={mode === "arc" ? "Pick a USDC module." : "Pick a builder kit."} />
+                  <RouteStep index="02" title="Tune" copy="Set only the fields that matter." />
+                  <RouteStep index="03" title="Own" copy="Sign from your wallet and manage it." />
                 </div>
                 <div className="grid gap-3 md:grid-cols-[1fr_auto] md:items-end">
                   <div>
@@ -470,10 +471,10 @@ export function RailLauncher({ mode }: { mode: LauncherMode }) {
               </div>
               <dl className="mt-5 space-y-3 text-sm">
                 <PreviewRow label="Contract owner" value={address ? shortAddress(address) : "connected wallet"} inverted />
-                <PreviewRow label="Launcher admin rights" value="none" inverted />
-                <PreviewRow label="Upgradeability" value="none" inverted />
+                <PreviewRow label="Launcher control" value="No admin access" inverted />
+                <PreviewRow label="Upgradeability" value="Not upgradeable" inverted />
                 <PreviewRow label="Settlement asset" value={selectedTemplate.currency} inverted />
-                {mode === "arc" && <PreviewRow label="Gateway layer" value="available" inverted />}
+                {mode === "arc" && <PreviewRow label="Gateway layer" value="Optional funding module" inverted />}
               </dl>
               <div className="mt-5 rounded-[18px] bg-white/[0.07] p-4 text-sm leading-6 text-white/72">
                 <Info className="mb-2 h-4 w-4 text-white/72" aria-hidden="true" />
@@ -548,6 +549,12 @@ export function RailLauncher({ mode }: { mode: LauncherMode }) {
               </div>
             )}
 
+            {selected === "usdc-mini-escrow" && (
+              <div className="rounded-[18px] bg-[#fff2ce]/78 p-4 text-sm leading-6 text-[#6d4b13]">
+                USDC escrow deployment uses two wallet confirmations: approve USDC to the registry, then deploy the escrow.
+              </div>
+            )}
+
             <div className="flex flex-col gap-3 rounded-[24px] bg-white/72 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.86)] backdrop-blur sm:flex-row sm:items-center sm:justify-between">
               <button
                 className="route-button-primary px-5 py-3"
@@ -566,18 +573,17 @@ export function RailLauncher({ mode }: { mode: LauncherMode }) {
         </section>
 
         {mode === "arc" && <GatewayConsole />}
-
-        <NetworkActivity metrics={metrics} mode={mode} chainId={targetChainId} compact />
       </div>
     </main>
   );
 }
 
-function RouteMetric({ label, value }: { label: string; value: string }) {
+function RouteStep({ index, title, copy }: { index: string; title: string; copy: string }) {
   return (
     <div className="rounded-[22px] bg-white/62 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.82)] backdrop-blur">
-      <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-[#777c73]">{label}</p>
-      <p className="mt-3 text-3xl font-semibold tracking-[-0.04em] text-[#171714]">{value}</p>
+      <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-[#777c73]">{index}</p>
+      <p className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-[#171714]">{title}</p>
+      <p className="mt-2 text-xs leading-5 text-[#687064]">{copy}</p>
     </div>
   );
 }
@@ -590,6 +596,17 @@ function InlineWarning({ children }: { children: ReactNode }) {
   );
 }
 
+const emptyGatewayBalances = {
+  wallet: 0n,
+  allowance: 0n,
+  total: 0n,
+  available: 0n,
+  withdrawable: 0n,
+  withdrawing: 0n,
+  domain: 0,
+  tokenSupported: false
+};
+
 function GatewayConsole() {
   const { address, isConnected } = useAccount();
   const chainId = useChainId();
@@ -599,20 +616,33 @@ function GatewayConsole() {
   const usdcAddress = resolveUSDCAddress(chainId);
   const { runTx, hash, error, isPending, setError } = useContractTx();
   const [depositAmount, setDepositAmount] = useState("10");
-  const [balances, setBalances] = useState({
-    wallet: 0n,
-    allowance: 0n,
-    total: 0n,
-    available: 0n,
-    withdrawable: 0n,
-    withdrawing: 0n,
-    domain: 0,
-    tokenSupported: false
-  });
+  const [balances, setBalances] = useState(emptyGatewayBalances);
   const [isLoading, setIsLoading] = useState(false);
+  const depositValue = useMemo(() => {
+    try {
+      return parseUnits(depositAmount || "0", USDC_DECIMALS);
+    } catch {
+      return 0n;
+    }
+  }, [depositAmount]);
+  const allowanceCoversDeposit = depositValue > 0n && balances.allowance >= depositValue;
+  const walletCoversDeposit = depositValue > 0n && balances.wallet >= depositValue;
+  const gatewayReady = Boolean(isConnected && isArcTestnet(chainId) && gatewayAddress && usdcAddress && balances.tokenSupported);
+  const approveGatewayLabel = !isConnected
+    ? "Connect wallet"
+    : !isArcTestnet(chainId)
+      ? "Switch to Arc"
+      : !walletCoversDeposit
+        ? "Need USDC"
+        : allowanceCoversDeposit
+          ? "Approved"
+          : isPending
+            ? "Signing"
+            : "Approve Gateway";
 
   const refreshGateway = useCallback(async () => {
     if (!publicClient || !address || !gatewayAddress || !usdcAddress || !isArcTestnet(chainId)) {
+      setBalances(emptyGatewayBalances);
       return;
     }
 
@@ -652,20 +682,42 @@ function GatewayConsole() {
     void refreshGateway();
   }, [refreshGateway]);
 
-  async function depositToGateway() {
+  function validateGatewayAmount() {
+    if (!isConnected || !address) {
+      setError("Connect a wallet before using Gateway.");
+      return false;
+    }
+
     if (!gatewayAddress || !usdcAddress) {
       setError("Gateway or USDC address is not configured.");
-      return;
+      return false;
     }
 
     if (!isArcTestnet(chainId)) {
       setError("Switch to Arc Testnet before using Gateway.");
-      return;
+      return false;
     }
 
-    const amount = parseUnits(depositAmount || "0", USDC_DECIMALS);
-    if (amount <= 0n) {
+    if (!balances.tokenSupported) {
+      setError("Gateway has not confirmed support for this USDC token yet. Refresh the Gateway panel.");
+      return false;
+    }
+
+    if (depositValue <= 0n) {
       setError("Gateway deposit amount must be greater than zero.");
+      return false;
+    }
+
+    if (!walletCoversDeposit) {
+      setError("Wallet USDC balance is lower than the deposit amount.");
+      return false;
+    }
+
+    return true;
+  }
+
+  async function approveGateway() {
+    if (!validateGatewayAmount() || !gatewayAddress || !usdcAddress) {
       return;
     }
 
@@ -673,14 +725,27 @@ function GatewayConsole() {
       address: usdcAddress,
       abi: erc20Abi,
       functionName: "approve",
-      args: [gatewayAddress, amount]
+      args: [gatewayAddress, depositValue]
     });
+
+    await refreshGateway();
+  }
+
+  async function depositToGateway() {
+    if (!validateGatewayAmount() || !gatewayAddress || !usdcAddress) {
+      return;
+    }
+
+    if (!allowanceCoversDeposit) {
+      setError("Approve Gateway for this USDC amount first, then deposit.");
+      return;
+    }
 
     await runTx({
       address: gatewayAddress,
       abi: gatewayWalletAbi,
       functionName: "deposit",
-      args: [usdcAddress, amount]
+      args: [usdcAddress, depositValue]
     });
 
     await refreshGateway();
@@ -695,6 +760,7 @@ function GatewayConsole() {
         </h2>
         <p className="mt-5 max-w-[48ch] text-sm leading-6 text-[#5d625a]">
           Deposit Arc USDC into Gateway, then read unified balance signals directly from the wallet contract.
+          This is optional settlement infrastructure and is not required before launching a template.
         </p>
         <div className="mt-5 space-y-2 font-mono text-xs text-[#777c73]">
           <p>USDC {usdcAddress ? shortAddress(usdcAddress) : "not configured"}</p>
@@ -724,21 +790,34 @@ function GatewayConsole() {
               Allowance: <span className="font-mono text-[#171714]">{formatToken(balances.allowance, USDC_DECIMALS)} USDC</span>
             </p>
           </div>
-          <div className="grid gap-4 md:grid-cols-[1fr_auto_auto] md:items-end">
+          <div className="grid gap-4 md:grid-cols-[1fr_auto_auto_auto] md:items-end">
             <Field label="Gateway deposit in USDC" value={depositAmount} onChange={setDepositAmount} />
             <button
               className="route-button-primary h-12 px-5"
-              disabled={isPending || !isConnected || !isArcTestnet(chainId)}
-              onClick={depositToGateway}
+              disabled={isPending || isLoading || !gatewayReady || allowanceCoversDeposit || !walletCoversDeposit}
+              onClick={approveGateway}
               type="button"
             >
               <WalletCards className="h-4 w-4" aria-hidden="true" />
-              {isPending ? "Signing" : "Approve + deposit"}
+              {approveGatewayLabel}
+            </button>
+            <button
+              className="route-button-primary h-12 px-5"
+              disabled={isPending || isLoading || !gatewayReady || !allowanceCoversDeposit || !walletCoversDeposit}
+              onClick={depositToGateway}
+              type="button"
+            >
+              Deposit to Gateway
             </button>
             <button className="route-button-secondary h-12 px-5 bg-white/70" disabled={isLoading} onClick={refreshGateway} type="button">
               Refresh
             </button>
           </div>
+
+          <p className="mt-3 text-xs leading-5 text-[#777c73]">
+            Wallets may show a warning for ERC20 approvals. For this flow, verify the spender is the Gateway Wallet shown above, confirm the approval,
+            then use Deposit as a separate transaction.
+          </p>
 
           {!isArcTestnet(chainId) && (
             <div className="mt-4 flex flex-col gap-3 rounded-[18px] bg-[#fff2ce]/78 p-4 text-sm text-[#6d4b13] sm:flex-row sm:items-center sm:justify-between">
