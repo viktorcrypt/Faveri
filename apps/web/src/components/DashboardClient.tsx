@@ -221,20 +221,20 @@ export function DashboardClient() {
 
       <section className="analytics-provenance grid gap-4 rounded-[34px] p-5 md:p-6 lg:grid-cols-[0.78fr_1.22fr]">
         <div>
-          <p className="font-mono text-xs uppercase tracking-[0.18em] text-[#777c73]">Public signal model</p>
-          <h2 className="mt-3 max-w-[10ch] text-5xl font-semibold leading-[0.94] tracking-[-0.055em] text-[#171714]">
-            Built for grant review.
+          <p className="font-mono text-xs uppercase tracking-[0.18em] text-[#777c73]">Faveri thesis</p>
+          <h2 className="brand-word mt-3 max-w-[11ch] text-5xl font-semibold leading-[0.9] tracking-[-0.065em] text-[#171714] md:text-6xl">
+            Make the rails feel invisible.
           </h2>
           <p className="mt-5 max-w-[48ch] text-sm leading-6 text-[#5d625a]">
-            The page is designed to show real network value: deployments, template demand, child-contract usage, and settlement activity without exposing wallet-level tables.
+            Faveri turns advanced onchain infrastructure into a calm launch flow: choose a rail, sign from your wallet, own the contract, and let public signals tell the story.
           </p>
         </div>
 
         <div className="grid gap-3 md:grid-cols-2">
-          <ProofCard icon={RadioTower} title="Registry storage" copy="Reads deployment count, template usage, and recent launch records from the Faveri registry." />
-          <ProofCard icon={Activity} title="Child counters" copy="Reads TipJar, Guestbook, Badge, and Escrow state from deployed user-owned contracts." />
-          <ProofCard icon={CircleDollarSign} title="Settlement signals" copy="Arc metrics include USDC launch templates and Gateway-facing settlement context." />
-          <ProofCard icon={ShieldCheck} title="Aggregate output" copy="No public deployer table, no child contract address table, no launcher admin claims." />
+          <ProofCard icon={RadioTower} title="Launch without ceremony" copy="Templates compress contract deployment into a few clear choices and one owner-signed transaction." />
+          <ProofCard icon={Activity} title="Usage becomes visible" copy="The analytics layer reads public contract activity and turns raw chain state into human signals." />
+          <ProofCard icon={CircleDollarSign} title="Modern settlement rails" copy="Arc and USDC flows sit beside Ink-native contracts, giving builders room to choose the right rail." />
+          <ProofCard icon={ShieldCheck} title="Ownership stays simple" copy="Contracts are user-owned by default. Faveri is the interface, not the hidden operator." />
         </div>
       </section>
     </div>
