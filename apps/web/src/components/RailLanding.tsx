@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { CSSProperties } from "react";
-import { ArrowUpRight, Cable, GitBranch, Route } from "lucide-react";
+import { ArrowUpRight, BarChart3, Cable, GitBranch, Route } from "lucide-react";
 
 const rails = [
   {
@@ -53,6 +53,12 @@ export function RailLanding() {
           <p className="max-w-[48ch] text-base leading-6 text-[#555a52] md:text-lg md:leading-7">
             Pick Ink or Arc, configure a real contract kit, sign from your wallet, and keep ownership in your own address.
           </p>
+          <div className="flex flex-wrap gap-3">
+            <Link className="route-button-primary" href="/analytics">
+              <BarChart3 className="h-4 w-4" aria-hidden="true" />
+              View onchain analytics
+            </Link>
+          </div>
         </div>
 
         <div className="reveal-in grid gap-4 [--index:1] lg:self-center">
