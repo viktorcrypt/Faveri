@@ -1,180 +1,166 @@
 # Faveri
 
-User-owned contract deployment and stablecoin settlement flows.
+Faveri is a launch terminal for simple user-owned onchain contracts and USDC settlement flows.
 
-Faveri is a no-code / low-code launchpad for builders who need real onchain primitives without writing deployment scripts from scratch. Users connect a wallet, choose a template, customize parameters, deploy a user-owned contract, and manage it from a generated contract page.
+The product goal is to make useful smart contracts feel like a normal product workflow: choose a route, pick a contract kit, fill in a few fields, sign from a wallet, and manage the launched contract from a clean generated page.
 
-The project started as an Ink contract launcher and expanded into a multi-mode builder tool:
+Faveri currently has two rails:
 
-- **Ink mode**: deploy user-owned smart contracts on Ink for builder tools, public goods, creator flows, and experiments.
-- **Arc mode**: deploy USDC-native contracts on Arc Testnet and use Circle Gateway for settlement liquidity.
+- **Arc rail** for USDC payments, escrow, Gateway liquidity, and settlement activity.
+- **Ink rail** for user-owned builder contracts, public goods, creator tools, and lightweight onchain experiments.
 
-Faveri is designed to be a serious developer product: transparent ownership, no launcher admin rights over user contracts, public onchain metrics, and real wallet transactions instead of mocked flows.
+The long-term idea is not to become another contract wizard with too many knobs. Faveri should feel like a reliable launch terminal for real work: less deployment friction, clearer ownership, better payment flows, and public activity signals that show what builders are actually using.
 
-## Why It Matters
+## Why Faveri Exists
 
-Builders often need simple but trustworthy contracts before they can test an idea with real users. Faveri turns common contract patterns into one-wallet-flow deployments:
+Most builders do not need a custom Solidity system for every small idea. They need a trustworthy primitive they can launch fast:
 
-1. Connect wallet.
-2. Choose a contract template.
-3. Edit parameters.
-4. Sign deployment.
-5. Open the generated contract page.
-6. Manage the contract through its own rules.
+- a place to receive support,
+- a simple public message wall,
+- a contributor badge,
+- a small token experiment,
+- an escrow for paid work,
+- a USDC settlement contract.
 
-Every deployment is recorded by an onchain registry, creating public signals around builder activity:
+Faveri packages these flows into reusable contract kits. The user still owns the deployed contract, but they do not need to write deployment scripts, copy ABIs, or build a contract dashboard from scratch.
 
-- Contracts launched.
-- Template usage.
-- Deployer addresses.
-- Contract addresses.
-- Public metadata.
-- Follow-up contract interactions.
-- USDC settlement activity in Arc mode.
+The important product shift is this:
 
-## Product Modes
+```text
+from "deploy a contract and disappear"
+to   "launch, use, manage, and measure the contract"
+```
 
-### Ink Mode
+## Arc / USDC Rail
 
-Ink mode focuses on user-owned contract launching for builders.
+The Arc rail is the most payment-focused part of Faveri.
 
-Supported networks:
+It is built around USDC workflows:
+
+- launch a USDC Tip Jar for support, donations, and lightweight payments,
+- launch a USDC Mini Escrow for milestones and paid work,
+- approve and deposit USDC into Circle Gateway for optional settlement liquidity,
+- read aggregate public activity from onchain events and contract state.
+
+### USDC Tip Jar
+
+A creator, builder, or project can launch a USDC Tip Jar and receive USDC support directly through their own contract. People can send a tip with a message, and the owner can withdraw the collected USDC later.
+
+This is the lightweight flow: useful for public goods, creators, open-source work, hackathon teams, and small product experiments.
+
+### USDC Mini Escrow
+
+USDC Mini Escrow is the stronger settlement flow.
+
+A creator locks USDC into a contract, assigns a worker or leaves submission open, and sets a deadline. The worker submits proof. The creator approves the work. Then the worker can claim the USDC.
+
+This turns a simple work agreement into an onchain settlement flow:
+
+- funds are committed,
+- proof is recorded,
+- approval is explicit,
+- payment becomes claimable through the contract.
+
+### Gateway
+
+Gateway is optional in the current product. A user does not need Gateway to launch a Faveri contract.
+
+In the Arc rail, Gateway is used as a settlement-liquidity layer: the UI can guide a user through USDC approval and deposit, then read wallet and Gateway balance signals from onchain contracts. This gives Faveri a path toward richer USDC liquidity, funding, and cross-environment settlement workflows.
+
+Current Arc configuration:
+
+- Arc Testnet chain ID: `5042002`
+- Arc RPC: `https://rpc.testnet.arc.network`
+- Arc explorer: `https://testnet.arcscan.app`
+- Arc USDC: `0x3600000000000000000000000000000000000000`
+- GatewayWallet: `0x0077777d7EBA4688BDeF3E311b846F25870A19B9`
+
+## Ink Rail
+
+The Ink rail focuses on simple user-owned builder contracts:
+
+- **Tip Jar**: collect ETH tips for a project or public good.
+- **Guestbook**: create a public onchain message wall.
+- **Builder Badge**: mint contributor, tester, or community badges.
+- **Simple ERC20**: launch a fixed-supply or owner-mintable token experiment.
+- **Mini Escrow**: lock ETH for a task, approve proof, and let the worker claim.
+
+Ink support is part of the same broader idea: make common onchain primitives easier to launch and manage without hiding contract ownership behind a platform account.
+
+Supported Ink networks:
 
 - Ink Mainnet: `57073`
 - Ink Sepolia: `763373`
 - Localhost Hardhat: `31337`
 
-Templates:
+## Product Principles
 
-- TipJar
-- Guestbook
-- BuilderBadge
-- SimpleERC20
-- MiniEscrow
+### User-Owned By Default
 
-### Arc / USDC Mode
+Faveri helps deploy contracts, but it should not become the owner of the user's contract.
 
-Arc mode focuses on stablecoin settlement and Circle-aligned payment flows.
+After launch, the generated contract page is a control surface for the user's contract. Owner actions are enabled only when the owner wallet is connected, and contract rules still execute onchain.
 
-Supported network:
+### Simple First Screen
 
-- Arc Testnet: `5042002`
+The interface should not start with a wall of chain data. A user chooses a rail, chooses a kit, and sees only the fields that matter for the current launch.
 
-Core assets and contracts:
+### Public Signals, Not Wallet Surveillance
 
-- Arc RPC: `https://rpc.testnet.arc.network`
-- Arc explorer: `https://testnet.arcscan.app`
-- Arc USDC ERC20: `0x3600000000000000000000000000000000000000`
-- Circle GatewayWallet: `0x0077777d7EBA4688BDeF3E311b846F25870A19B9`
-- Gateway domain shown in UI: `26`
+Analytics should show aggregate onchain activity:
 
-Arc templates:
+- launches,
+- template demand,
+- contract interactions,
+- settlement activity.
 
-- USDCTipJar
-- USDCMiniEscrow
+The product should not turn into a wallet table for regular users. The analytics page is designed to show network-level momentum without making every user's address the center of the interface.
 
-Circle Gateway flow:
+### Real Transactions
 
-1. User switches to Arc Testnet.
-2. User approves USDC to GatewayWallet.
-3. User deposits USDC into GatewayWallet.
-4. UI reads wallet USDC, Gateway total balance, available balance, withdrawable balance, withdrawing balance, domain, allowance, and token support.
+Faveri avoids fake onchain actions. The MVP supports real wallet transactions, real deployed contracts, real contract pages, and real registry events.
 
-This makes Arc mode a real value/liquidity/settlement flow, not just another EVM network selector.
+## Current Features
 
-## Features
-
+- Arc and Ink route selection.
 - Wallet connection with wagmi and viem.
-- Next.js, React, TypeScript, and Tailwind frontend.
-- Hardhat Solidity workspace.
-- Seven real Solidity templates.
-- Localhost, Ink Mainnet, Ink Sepolia, and Arc Testnet support.
-- One-click deployment forms with client-side validation.
-- Generated contract pages by deployed address and template.
-- Owner-only actions gated in the UI and enforced onchain.
-- Registry analytics dashboard.
-- Public `ContractLaunched` events for metrics.
-- Circle Gateway deposit console in Arc mode.
-- Generated ABIs and deployment address resolution.
-- No backend required for the current MVP.
+- Contract kit selection with polished visual cards.
+- Deployment forms for all supported templates.
+- Generated contract pages by address and template.
+- Owner actions from the generated contract page.
+- USDC approval and deposit flow for Gateway.
+- Aggregate analytics route for public onchain signals.
+- Hardhat contracts, tests, and deployment scripts.
+- Generated ABI and deployment-address files for the frontend.
 
-## Architecture
+## Contract Kits
+
+| Kit | Rail | Asset | Purpose |
+| --- | --- | --- | --- |
+| Tip Jar | Ink | ETH | Receive ETH support and tips. |
+| Guestbook | Ink | ETH | Collect public onchain messages. |
+| Builder Badge | Ink | ETH | Mint badges for contributors or community members. |
+| Simple ERC20 | Ink | ETH | Create a small token experiment. |
+| Mini Escrow | Ink | ETH | Pay for work after proof and approval. |
+| USDC Tip Jar | Arc | USDC | Receive USDC support and lightweight payments. |
+| USDC Mini Escrow | Arc | USDC | Lock, approve, and settle paid work in USDC. |
+
+## Architecture Snapshot
 
 ```text
 apps/web
   Next.js + React + TypeScript + Tailwind
-  wagmi + viem wallet connection, reads, writes, logs
-  generated ABIs and deployment-address resolution
+  wagmi + viem for wallets, reads, writes, and logs
+  generated ABIs and deployment addresses
 
 packages/contracts
   Hardhat + TypeScript
   Solidity ^0.8.24
   OpenZeppelin v5
-  InkLauncherRegistry
-  Template deployer libraries
-  TipJar, Guestbook, BuilderBadge, SimpleERC20, MiniEscrow
-  USDCTipJar, USDCMiniEscrow, MockUSDC
-  Tests and deployment scripts
+  Registry, template contracts, deployment scripts, tests
 ```
 
-The registry deploys templates and records `ContractLaunched` events. Some creation logic is moved into stateless linked deployer libraries so the registry stays below contract-size limits. These libraries are not proxies, are not upgrade paths, and do not retain control over deployed contracts.
-
-## Ownership Model
-
-The deployed contract belongs to the wallet that calls the registry.
-
-- Contract owner: connected wallet.
-- Launcher admin rights: none.
-- Upgradeability: none.
-- Funds control: only owner or template rules.
-- Registry data: public deployment metadata only.
-
-The registry never becomes the owner of `TipJar`, `Guestbook`, `BuilderBadge`, `SimpleERC20`, or `USDCTipJar`. For `MiniEscrow` and `USDCMiniEscrow`, the creator is the wallet that called the registry.
-
-For `USDCMiniEscrow`, the registry atomically transfers the user's approved USDC into the newly deployed escrow contract. The registry does not custody funds after deployment and cannot approve, claim, refund, or cancel the escrow.
-
-## Contract Templates
-
-### TipJar
-
-User-owned donation contract with minimum tip, public tip events, owner metadata updates, and owner withdrawal.
-
-### Guestbook
-
-User-owned onchain message wall with message fees, message length limits, public messages, and owner withdrawal.
-
-### BuilderBadge
-
-ERC721 badge contract for contributors, testers, quest winners, beta users, or community members. Can be transferable or soulbound after mint.
-
-### SimpleERC20
-
-Simple ERC20 template with initial supply minted to the user. Can be fixed supply or owner-mintable.
-
-### MiniEscrow
-
-Native-token milestone escrow. Funds are locked on deployment. A fixed worker or first open submitter can submit proof, creator approves, and worker claims.
-
-### USDCTipJar
-
-Arc-oriented payment contract. Users tip with ERC20 USDC through `approve + tip`, and only the contract owner can withdraw accumulated USDC.
-
-### USDCMiniEscrow
-
-Arc-oriented USDC milestone escrow. The creator approves USDC to the registry, the registry deploys a user-owned escrow, and the approved USDC is moved directly into that escrow. Worker proof, creator approval, claims, cancellation, and deadline refunds follow the same ownership model as MiniEscrow.
-
-## Metrics
-
-The registry stores and emits:
-
-- Deployer address.
-- Deployed contract address.
-- Template ID.
-- Template name.
-- Public metadata string.
-- Timestamp.
-
-The frontend reads registry storage and `ContractLaunched` logs with viem.
+The registry deploys contract kits and emits launch events for analytics. Some deployment logic is split into stateless deployer libraries to keep contract size manageable. These libraries are deployment helpers, not upgrade systems.
 
 ## Local Development
 
@@ -182,6 +168,18 @@ Install dependencies:
 
 ```bash
 pnpm install
+```
+
+Run the frontend:
+
+```bash
+pnpm dev
+```
+
+Open:
+
+```text
+http://localhost:3000
 ```
 
 Run checks:
@@ -194,32 +192,14 @@ pnpm lint
 pnpm build
 ```
 
-Run local chain and deploy:
+Run local chain and deploy locally:
 
 ```bash
 pnpm chain
 pnpm deploy:localhost
 ```
 
-Run frontend:
-
-```bash
-pnpm dev
-```
-
-Open:
-
-```text
-http://localhost:3000
-```
-
 Stop foreground servers with `Ctrl+C` in the same terminal.
-
-On localhost, the deploy script also deploys `MockUSDC`, mints local USDC to the deployer account, and writes both registry and MockUSDC addresses to:
-
-```text
-apps/web/src/generated/deployments.json
-```
 
 ## Environment Variables
 
@@ -229,14 +209,14 @@ Create `.env` from `.env.example`:
 cp .env.example .env
 ```
 
-Required / supported variables:
+Supported variables:
 
 ```bash
 NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=
 NEXT_PUBLIC_REGISTRY_ADDRESS_LOCALHOST=
 NEXT_PUBLIC_REGISTRY_ADDRESS_INK_MAINNET=
 NEXT_PUBLIC_REGISTRY_ADDRESS_INK_SEPOLIA=
-NEXT_PUBLIC_REGISTRY_ADDRESS_ARC_TESTNET=0xDb5C8D18c67C5d4E00563E82150E1FD9E9ae8b9D
+NEXT_PUBLIC_REGISTRY_ADDRESS_ARC_TESTNET=
 NEXT_PUBLIC_USDC_ADDRESS_LOCALHOST=
 NEXT_PUBLIC_USDC_ADDRESS_ARC_TESTNET=0x3600000000000000000000000000000000000000
 NEXT_PUBLIC_GATEWAY_WALLET_ADDRESS_ARC_TESTNET=0x0077777d7EBA4688BDeF3E311b846F25870A19B9
@@ -246,58 +226,42 @@ ARC_TESTNET_RPC_URL=https://rpc.testnet.arc.network
 PRIVATE_KEY=
 ```
 
-Never put a real private key in frontend code. `PRIVATE_KEY` is used only by Hardhat deployment scripts.
+`PRIVATE_KEY` is only for Hardhat deployment scripts. Do not put private keys in frontend code or Vercel public variables.
 
 ## Deploy Contracts
 
-### Ink Mainnet
+Deploy to Ink Mainnet:
 
 ```bash
 pnpm compile
 pnpm deploy:ink
 ```
 
-After deployment, set or confirm:
-
-```bash
-NEXT_PUBLIC_REGISTRY_ADDRESS_INK_MAINNET=0x...
-```
-
-The existing generated Ink mainnet address may point to an older registry deployment. Redeploy with `pnpm deploy:ink` when you want Ink mainnet to use the newest registry ABI and template set.
-
-### Ink Sepolia
+Deploy to Ink Sepolia:
 
 ```bash
 pnpm compile
 pnpm deploy:ink-sepolia
 ```
 
-After deployment, set or confirm:
-
-```bash
-NEXT_PUBLIC_REGISTRY_ADDRESS_INK_SEPOLIA=0x...
-```
-
-### Arc Testnet
+Deploy to Arc Testnet:
 
 ```bash
 pnpm compile
 pnpm deploy:arc
 ```
 
-After deployment, set or confirm:
+The deployment script writes frontend-readable addresses to:
 
-```bash
-NEXT_PUBLIC_REGISTRY_ADDRESS_ARC_TESTNET=0xDb5C8D18c67C5d4E00563E82150E1FD9E9ae8b9D
-NEXT_PUBLIC_USDC_ADDRESS_ARC_TESTNET=0x3600000000000000000000000000000000000000
-NEXT_PUBLIC_GATEWAY_WALLET_ADDRESS_ARC_TESTNET=0x0077777d7EBA4688BDeF3E311b846F25870A19B9
+```text
+apps/web/src/generated/deployments.json
 ```
 
-Arc mode needs a fresh Arc registry deployment before USDC contract launching works. Gateway deposits use the configured GatewayWallet address and do not require the Faveri registry.
+For production deployments, set the matching `NEXT_PUBLIC_REGISTRY_ADDRESS_*` variable in the frontend environment.
 
 ## Deploy Frontend To Vercel
 
-Recommended Vercel settings:
+Recommended settings:
 
 - Framework preset: Next.js
 - Root directory: `apps/web`
@@ -305,77 +269,69 @@ Recommended Vercel settings:
 - Build command: `pnpm build`
 - Output directory: default Next.js output
 
-Set Vercel environment variables:
+Required public variables for the current live Arc flow:
 
 ```bash
 NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=
-NEXT_PUBLIC_REGISTRY_ADDRESS_INK_MAINNET=
-NEXT_PUBLIC_REGISTRY_ADDRESS_INK_SEPOLIA=
 NEXT_PUBLIC_REGISTRY_ADDRESS_ARC_TESTNET=0xDb5C8D18c67C5d4E00563E82150E1FD9E9ae8b9D
 NEXT_PUBLIC_USDC_ADDRESS_ARC_TESTNET=0x3600000000000000000000000000000000000000
 NEXT_PUBLIC_GATEWAY_WALLET_ADDRESS_ARC_TESTNET=0x0077777d7EBA4688BDeF3E311b846F25870A19B9
 ```
 
-Do not add `PRIVATE_KEY` to Vercel. Contract deployment happens locally through Hardhat, not from the frontend.
+Add Ink variables as needed:
+
+```bash
+NEXT_PUBLIC_REGISTRY_ADDRESS_INK_MAINNET=
+NEXT_PUBLIC_REGISTRY_ADDRESS_INK_SEPOLIA=
+```
+
+Do not add `PRIVATE_KEY` to Vercel.
 
 ## Scripts
 
 - `pnpm compile` - compile Solidity and export frontend ABIs.
 - `pnpm test` - run Hardhat tests.
 - `pnpm chain` - start local Hardhat node.
-- `pnpm deploy:localhost` - deploy registry, linked libraries, and MockUSDC locally.
+- `pnpm deploy:localhost` - deploy locally.
 - `pnpm deploy:ink` - deploy to Ink mainnet.
-- `pnpm deploy:ink-mainnet` - deploy to Ink mainnet.
 - `pnpm deploy:ink-sepolia` - deploy to Ink Sepolia.
 - `pnpm deploy:arc` - deploy to Arc Testnet.
-- `pnpm deploy:arc-testnet` - deploy to Arc Testnet.
-- `pnpm dev` - run the Next.js frontend.
+- `pnpm dev` - run the frontend.
 - `pnpm lint` - run lint checks.
 - `pnpm typecheck` - run TypeScript checks.
-- `pnpm build` - build the Next.js frontend.
+- `pnpm build` - build the frontend.
 
-## Security Notes
+## Safety Notes
 
-- Template contracts use Solidity `^0.8.24`.
-- OpenZeppelin v5 contracts are used where useful.
-- BuilderBadge uses the OpenZeppelin v5 `_update` override pattern to block transfers when non-transferable.
-- ReentrancyGuard protects ETH and USDC withdrawals and escrow payouts.
-- Escrow creator cannot reclaim funds after approval.
-- Worker cannot claim before approval.
-- Registry only records public deployment metadata.
-- USDC templates require ERC20 approvals. The UI performs explicit approval transactions before moving USDC.
-- Gateway deposits use the GatewayWallet address configured by environment variable.
-- Blockchain data is public. Do not submit private data in messages, descriptions, metadata URIs, or proof URIs.
-
-## Test Status
-
-Current verification set:
-
-```bash
-pnpm compile
-pnpm test
-pnpm typecheck
-pnpm lint
-pnpm build
-```
-
-Latest local test pass:
-
-```text
-22 passing
-```
-
-The tests cover registry deployment, ownership guarantees, template usage counts, ETH templates, USDC templates, escrow lifecycle, and negative impersonation cases proving the registry cannot manage child contracts.
+- Blockchain data is public. Do not put secrets or private user data into messages, descriptions, metadata URIs, or proof URIs.
+- USDC flows require explicit ERC20 approvals before tokens can move.
+- Escrow contracts enforce the proof, approval, claim, cancel, and refund rules onchain.
+- Gateway deposits use the configured GatewayWallet address.
+- Faveri's frontend never asks users for a private key.
 
 ## Roadmap
 
-- Fresh deploys on Ink Mainnet and Arc Testnet with the newest registry ABI.
-- Vercel production deployment.
-- Contract verification on Ink and Arc explorers.
-- CCTP funding route into Arc mode.
-- x402 / nanopayment demo backed by Gateway balance.
-- Richer event indexing for follow-up interactions.
-- Import-by-address for contracts not launched in the current browser session.
-- Template source previews before deployment.
-- CSV export for launch analytics.
-- Additional templates for public goods and builder operations.
+Near-term ideas:
+
+- Record and publish a focused Arc + USDC settlement demo.
+- Verify deployed contracts on Arc and Ink explorers.
+- Improve the contract pages with clearer post-launch guidance.
+- Add import-by-address for contracts launched from another browser or device.
+- Add richer aggregate analytics for follow-up actions after deployment.
+
+USDC and settlement ideas:
+
+- Add a CCTP funding route into Arc.
+- Add an x402 / nanopayment demo connected to Faveri contract pages.
+- Expand Gateway usage from deposit visibility into a fuller settlement-liquidity workflow.
+- Add simple invoice-style pages backed by USDC Tip Jar or Escrow contracts.
+
+Builder-product ideas:
+
+- More templates for public goods, community operations, and creator payments.
+- Template previews that show the exact user flow before deployment.
+- Shareable contract pages with cleaner public-facing views.
+- Better mobile flow for quick contract launch and management.
+- Optional indexing layer for faster analytics while keeping onchain events as the source of truth.
+
+Faveri is still an MVP, but the direction is clear: make useful onchain contracts easier to launch, easier to manage, and easier to measure.
