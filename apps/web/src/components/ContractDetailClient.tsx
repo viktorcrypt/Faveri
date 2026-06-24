@@ -8,6 +8,7 @@ import {
   ExternalLink,
   FileText,
   HandCoins,
+  ListChecks,
   LockKeyhole,
   MessageSquareText,
   RefreshCw,
@@ -191,18 +192,20 @@ export function ContractDetailClient({ contractAddress, template }: { contractAd
         <aside className="panel reveal-in p-5 [--index:1]">
           <div className="flex items-center gap-2 text-sm font-semibold text-[#171714]">
             <ShieldCheck className="h-4 w-4 text-[#4e8f65]" aria-hidden="true" />
-            Control model
+            Your contract
           </div>
+          <p className="mt-3 text-sm leading-6 text-[#686b63]">
+            {contractExplainers[template]}
+          </p>
           <dl className="mt-4 space-y-3 text-sm">
-            <SummaryRow label={template === "mini-escrow" || template === "usdc-mini-escrow" ? "Creator" : "Contract owner"} value={ownerLike ? shortAddress(ownerLike) : "Loading"} />
+            <SummaryRow label={template === "mini-escrow" || template === "usdc-mini-escrow" ? "Creator wallet" : "Owner wallet"} value={ownerLike ? shortAddress(ownerLike) : "Loading"} />
             <SummaryRow label="Connected wallet" value={address ? shortAddress(address) : "Not connected"} />
-            <SummaryRow label="Launcher control" value="No admin access" />
-            <SummaryRow label="Upgradeability" value="Not upgradeable" />
-            <SummaryRow label="Registry data" value="public deployment metadata only" />
+            <SummaryRow label="Owner tools" value={isOwner ? "Available" : "Connect owner wallet"} />
           </dl>
           <div className="mt-4 rounded-md border border-[#171714]/10 bg-white/[0.65] p-3 text-sm leading-6 text-[#55584f]">
-            {isOwner ? "Owner actions are enabled for the connected wallet." : "Owner-only actions stay disabled unless the owner wallet is connected."}
+            Faveri launched this instance; the contract now runs by its own onchain rules.
           </div>
+          <DemoGuide template={template} isOwner={isOwner} />
         </aside>
       </section>
 
@@ -471,6 +474,90 @@ function TemplateActions({
 
   return <EscrowActions address={address} data={data} disabled={isPending} isCreator={isOwner} runAction={runAction} usdc={template === "usdc-mini-escrow"} />;
 }
+
+function DemoGuide({ isOwner, template }: { isOwner: boolean; template: TemplateSlug }) {
+  const steps = demoSteps[template] ?? demoSteps.tipjar;
+
+  return (
+    <div className="mt-4 rounded-[18px] bg-[#171714]/[0.04] p-4">
+      <div className="flex items-center gap-2 text-sm font-semibold text-[#171714]">
+        <ListChecks className="h-4 w-4 text-[#4e8f65]" aria-hidden="true" />
+        Demo path
+      </div>
+      <ol className="mt-3 space-y-2">
+        {steps.map((step, index) => (
+          <li className="grid grid-cols-[1.65rem_1fr] gap-2 text-sm leading-6 text-[#55584f]" key={step}>
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white/[0.78] font-mono text-[11px] text-[#171714]">
+              {index + 1}
+            </span>
+            <span>{step}</span>
+          </li>
+        ))}
+      </ol>
+      <p className="mt-3 text-xs leading-5 text-[#777c73]">
+        {isOwner ? "For recording, this wallet can run owner actions after the public interaction." : "Connect the owner wallet when you want to show owner-only actions."}
+      </p>
+      <Link className="mt-3 inline-flex text-sm font-semibold text-[#171714] underline decoration-[#171714]/20 underline-offset-4" href="/analytics">
+        Open aggregate analytics
+      </Link>
+    </div>
+  );
+}
+
+const demoSteps: Record<TemplateSlug, string[]> = {
+  tipjar: [
+    "Send a small ETH tip and approve the wallet transaction.",
+    "Refresh the page and show Total tips plus Tips count changing.",
+    "Withdraw as owner or update the minimum tip.",
+    "Open analytics to show aggregate network activity."
+  ],
+  "usdc-tipjar": [
+    "Send a small USDC tip; the wallet will ask for approval and then the tip transaction.",
+    "Refresh the page and show Total tips plus Tips count changing.",
+    "Withdraw USDC as owner or update the minimum tip.",
+    "Open analytics to show aggregate network activity."
+  ],
+  guestbook: [
+    "Post a public message and approve the wallet transaction.",
+    "Refresh the page and show the new message in contract state.",
+    "Rename the wall or update the message fee as owner.",
+    "Open analytics to show aggregate network activity."
+  ],
+  "builder-badge": [
+    "Mint a badge to your wallet or a second demo wallet.",
+    "Refresh the page and show Total minted increasing.",
+    "Explain whether the badge is transferable or soulbound.",
+    "Open analytics to show aggregate network activity."
+  ],
+  "simple-erc20": [
+    "Show whether the token is fixed supply or owner-mintable.",
+    "If mintable, mint a small amount to your wallet.",
+    "Refresh the page and show Total supply changing.",
+    "Open analytics to show aggregate network activity."
+  ],
+  "mini-escrow": [
+    "Submit a proof URI as the worker.",
+    "Approve the submission as creator.",
+    "Claim the reward as worker.",
+    "Open analytics to show aggregate network activity."
+  ],
+  "usdc-mini-escrow": [
+    "Submit a proof URI as the worker.",
+    "Approve the submission as creator.",
+    "Claim the USDC reward as worker.",
+    "Open analytics to show aggregate settlement activity."
+  ]
+};
+
+const contractExplainers: Record<TemplateSlug, string> = {
+  tipjar: "A simple ETH tip jar for a project, creator, or public good. Anyone can send tips; the owner can withdraw collected funds and edit the public text.",
+  "usdc-tipjar": "A USDC tip jar for support, donations, or paid appreciation. Anyone can send USDC; the owner can withdraw collected USDC and update the public text.",
+  guestbook: "A public message wall. Visitors pay the configured fee to post a message, and the owner can withdraw collected fees or adjust the wall settings.",
+  "builder-badge": "A badge collection for contributors, testers, winners, or community members. The owner mints badges; transfer rules are decided at launch.",
+  "simple-erc20": "A basic ERC20 token for experiments, communities, or internal points. The launch settings decide whether supply is fixed or owner-mintable.",
+  "mini-escrow": "A small escrow for paid work. Funds are locked in the contract, a worker submits proof, the creator approves, and then the worker claims.",
+  "usdc-mini-escrow": "A USDC escrow for paid work on Arc. USDC is locked in the contract, a worker submits proof, the creator approves, and the worker claims."
+};
 
 function TipJarActions({
   address,

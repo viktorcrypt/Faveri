@@ -339,7 +339,7 @@ export function RailLauncher({ mode }: { mode: LauncherMode }) {
                   {mode === "arc" ? "Arc rail / USDC settlement" : "Ink rail / contract launch"}
                 </p>
                 <h1 className="mt-4 max-w-[12ch] text-[clamp(3rem,7vw,7rem)] font-semibold leading-[0.89] tracking-[-0.065em] text-[#171714]">
-                  {mode === "arc" ? "Stablecoin routes for real work." : "Builder contracts without admin drag."}
+                  {mode === "arc" ? "Stablecoin routes for real work." : "Builder contracts without ceremony."}
                 </h1>
               </div>
               <p className="max-w-[54ch] text-base leading-7 text-[#555a52] md:text-lg">
@@ -467,14 +467,17 @@ export function RailLauncher({ mode }: { mode: LauncherMode }) {
             <aside className="rounded-[28px] bg-[#171714] p-5 text-[#f8f6ef] shadow-[inset_0_1px_0_rgba(255,255,255,0.16)]">
               <div className="flex items-center gap-2 text-sm font-semibold">
                 <ShieldCheck className="h-4 w-4 text-[#b7d8b8]" aria-hidden="true" />
-                Launch preview
+                Launch summary
               </div>
+              <p className="mt-3 text-sm leading-6 text-white/64">
+                Faveri will create a fresh {selectedTemplate.contractName} for your wallet with the settings below.
+              </p>
               <dl className="mt-5 space-y-3 text-sm">
-                <PreviewRow label="Contract owner" value={address ? shortAddress(address) : "connected wallet"} inverted />
-                <PreviewRow label="Launcher control" value="No admin access" inverted />
-                <PreviewRow label="Upgradeability" value="Not upgradeable" inverted />
-                <PreviewRow label="Settlement asset" value={selectedTemplate.currency} inverted />
-                {mode === "arc" && <PreviewRow label="Gateway layer" value="Optional funding module" inverted />}
+                <PreviewRow label="Owner wallet" value={address ? shortAddress(address) : "Connect wallet"} inverted />
+                <PreviewRow label="Contract kit" value={selectedTemplate.title} inverted />
+                <PreviewRow label="Asset" value={selectedTemplate.currency} inverted />
+                <PreviewRow label="After launch" value={launchOutcomes[selected]} inverted />
+                {mode === "arc" && <PreviewRow label="Gateway" value="Optional liquidity route" inverted />}
               </dl>
               <div className="mt-5 rounded-[18px] bg-white/[0.07] p-4 text-sm leading-6 text-white/72">
                 <Info className="mb-2 h-4 w-4 text-white/72" aria-hidden="true" />
@@ -587,6 +590,16 @@ function RouteStep({ index, title, copy }: { index: string; title: string; copy:
     </div>
   );
 }
+
+const launchOutcomes: Record<TemplateSlug, string> = {
+  tipjar: "Collect ETH tips",
+  guestbook: "Receive public messages",
+  "builder-badge": "Mint badges",
+  "simple-erc20": "Use token tools",
+  "mini-escrow": "Manage escrow work",
+  "usdc-tipjar": "Collect USDC tips",
+  "usdc-mini-escrow": "Settle USDC work"
+};
 
 function InlineWarning({ children }: { children: ReactNode }) {
   return (

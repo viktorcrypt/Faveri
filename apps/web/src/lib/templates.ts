@@ -32,7 +32,7 @@ export const templates: TemplateInfo[] = [
     title: "Tip Jar",
     contractName: "TipJar",
     description: "Collect ETH tips for a builder project and withdraw as owner.",
-    notice: "TipJar funds are controlled only by the contract owner.",
+    notice: "Tips collect in this contract until the owner withdraws them.",
     icon: BadgeDollarSign
   },
   {
@@ -76,7 +76,7 @@ export const templates: TemplateInfo[] = [
     title: "Mini Escrow",
     contractName: "MiniEscrow",
     description: "Lock a quest or milestone reward until proof is submitted and approved.",
-    notice: "Escrow funds are locked by contract rules and claimable only after approval.",
+    notice: "The reward stays in escrow until the work is approved or the deadline rules apply.",
     icon: Handshake
   },
   {
@@ -86,8 +86,8 @@ export const templates: TemplateInfo[] = [
     currency: "USDC",
     title: "USDC Tip Jar",
     contractName: "USDCTipJar",
-    description: "Collect USDC payments on Arc with owner-controlled settlement.",
-    notice: "Tips use ERC20 USDC approval and are withdrawable only by the owner.",
+    description: "Collect USDC support, donations, or paid appreciation on Arc.",
+    notice: "USDC tips collect in this contract until the owner withdraws them.",
     icon: HandCoins
   },
   {
