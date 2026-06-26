@@ -6,10 +6,12 @@ The product goal is to make useful smart contracts feel like a normal product wo
 
 Faveri currently has two rails:
 
-- **Arc rail** for USDC payments, escrow, Gateway liquidity, and settlement activity.
 - **Ink rail** for user-owned builder contracts, public goods, creator tools, and lightweight onchain experiments.
+- **Arc rail** for USDC payments, escrow, Gateway liquidity, and settlement activity.
 
 The long-term idea is not to become another contract wizard with too many knobs. Faveri should feel like a reliable launch terminal for real work: less deployment friction, clearer ownership, better payment flows, and public activity signals that show what builders are actually using.
+
+The Ink rail is live on Ink Mainnet. The Arc rail extends the same product idea into USDC settlement workflows.
 
 ## Why Faveri Exists
 
@@ -92,6 +94,17 @@ Supported Ink networks:
 - Ink Mainnet: `57073`
 - Ink Sepolia: `763373`
 - Localhost Hardhat: `31337`
+
+Current Ink Mainnet deployment:
+
+- Registry: `0x7A62447235c47aBEC0d26267D9032E0f28DF0BC9`
+- Explorer: `https://explorer.inkonchain.com/address/0x7A62447235c47aBEC0d26267D9032E0f28DF0BC9`
+
+Current Ink Mainnet registry signals as of June 26, 2026:
+
+- `135` total contract launches.
+- `20` deploying wallets.
+- Template usage: `36` Tip Jars, `23` Guestbooks, `24` Builder Badges, `31` Simple ERC20s, and `21` Mini Escrows.
 
 ## Product Principles
 
